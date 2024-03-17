@@ -48,7 +48,7 @@ attr_value = { WSP* ~ (!PEEK ~ ANY)* ~ WSP* }
 //
 // ELEMENTS
 //
-el_name = @{ ASCII_ALPHA ~ text_chars* }
+el_name = @{ ASCII_ALPHA ~ (text_chars | ".")* }
 
 // Void element aka self-closing element
 // Ex: <hr>

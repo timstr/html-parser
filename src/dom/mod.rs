@@ -1,7 +1,7 @@
 use crate::Result;
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use serde::Serialize;
-use std::default::Default;
+use std::{default::Default, fmt};
 
 use crate::error::Error;
 use crate::grammar::Grammar;
@@ -83,6 +83,10 @@ impl Dom {
 
     pub fn to_json_pretty(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(self)?)
+    }
+
+    pub fn to_html(&self) -> String {
+        format!("{}", self)
     }
 
     fn build_dom(pairs: Pairs<Rule>) -> Result<Self> {
@@ -361,5 +365,21 @@ impl Dom {
             }
         }
         Ok(attribute)
+    }
+}
+
+impl fmt::Display for Dom {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.tree_type {
+            DomVariant::Document => {
+                f.write_str("<!doctype html>")?;
+            }
+            DomVariant::DocumentFragment => (),
+            DomVariant::Empty => return Ok(()),
+        }
+        for c in &self.children {
+            f.write_fmt(format_args!("{}", c))?;
+        }
+        Ok(())
     }
 }

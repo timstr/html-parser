@@ -1,3 +1,5 @@
+use core::fmt;
+
 use super::element::Element;
 use serde::Serialize;
 
@@ -104,6 +106,16 @@ impl<'a> Iterator for NodeIntoIterator<'a> {
         };
 
         result
+    }
+}
+
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Node::Text(s) => f.write_str(s.trim()),
+            Node::Element(e) => f.write_fmt(format_args!("{}", e)),
+            Node::Comment(_) => Ok(()),
+        }
     }
 }
 

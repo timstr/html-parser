@@ -1,5 +1,6 @@
 use super::node::Node;
 use super::span::SourceSpan;
+use core::fmt;
 use serde::{Serialize, Serializer};
 use std::collections::{BTreeMap, HashMap};
 use std::default::Default;
@@ -47,7 +48,7 @@ pub struct Element {
 
     /// Span of the element in the parsed source
     #[serde(skip)]
-    pub source_span: SourceSpan
+    pub source_span: SourceSpan,
 }
 
 impl Default for Element {
@@ -59,8 +60,34 @@ impl Default for Element {
             classes: vec![],
             attributes: HashMap::new(),
             children: vec![],
-            source_span: SourceSpan::default()
+            source_span: SourceSpan::default(),
         }
+    }
+}
+
+impl fmt::Display for Element {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("<{}", self.name))?;
+        if let Some(id) = &self.id {
+            f.write_fmt(format_args!(" {}", id))?;
+        }
+        for (key, value) in &self.attributes {
+            if let Some(value) = value {
+                f.write_fmt(format_args!(" {}=\"{}\"", key, value))?;
+            } else {
+                f.write_fmt(format_args!(" {}", key))?;
+            }
+        }
+        if self.children.is_empty() {
+            f.write_str(" />")?;
+            return Ok(());
+        }
+        f.write_str(">")?;
+        for c in &self.children {
+            f.write_fmt(format_args!("{}", c))?;
+        }
+        f.write_fmt(format_args!("</{}>", self.name))?;
+        Ok(())
     }
 }
 
